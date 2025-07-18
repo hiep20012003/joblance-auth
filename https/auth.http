@@ -1,0 +1,12 @@
+### Set base URL
+@baseUrl = http://localhost:4003/api/v1/auth
+
+### Create User Role
+POST {{baseUrl}}/signup
+Content-Type: application/json
+
+{
+  "username": "adftuserasdd",
+  "email": "nguyendunghiep20012003@gmail.com",
+  "password": "password123"
+}
