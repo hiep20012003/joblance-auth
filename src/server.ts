@@ -86,7 +86,8 @@ export class AuthServer {
 
       if (err instanceof ApplicationError) {
         new ErrorResponse({
-          ...err.serializeForClient() as ResponseOptions
+          ...err.serializeForClient() as ResponseOptions,
+          error: new RegExp('validate', 'i').test(err?.operation as string) ? err.context : undefined
         }).send(res);
       } else {
         const serverError = new ServerError({

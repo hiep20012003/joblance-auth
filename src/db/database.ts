@@ -112,7 +112,7 @@ export class Database {
   }
 }
 
-// export const database = new Database();
+export const database = new Database();
 export const db = {
   // sequelize: database.sequelizeInstance,
   User,

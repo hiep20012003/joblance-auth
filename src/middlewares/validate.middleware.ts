@@ -1,11 +1,19 @@
-import { StatusCodes } from 'http-status-codes';
-import { NextFunction, Response } from 'express';
-import { ZodType } from 'zod';
+import { NextFunction, Response, Request } from 'express';
+import { ZodType, z } from 'zod';
+import { BadRequestError } from '@hiep20012003/joblance-shared';
 
-export const validate = (schema: ZodType) => (req: Request, res: Response, next: NextFunction) => {
+export const validate = (schema: ZodType) => (req: Request, _res: Response, next: NextFunction) => {
   const result = schema.safeParse(req.body);
+
   if (!result.success) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: result.error });
+    const flattened = z.flattenError(result.error);
+
+    throw new BadRequestError({
+      clientMessage: 'Validation error',
+      operation: 'validate-signup',
+      context: { ...flattened },
+    });
   }
+
   next();
 };

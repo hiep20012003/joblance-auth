@@ -3,6 +3,7 @@ import { publishDirectMessage } from '@auth/queues/auth.producer';
 import { authChannel } from '@auth/server';
 import { config } from '@auth/config';
 import { AuthEmailMessage, EmailTemplate } from '@hiep20012003/joblance-shared';
+import { AppLogger } from '@auth/utils/logger';
 
 import { TokenService } from './token.service';
 
@@ -15,6 +16,13 @@ export class EmailService {
   sendEmailVeritication = async(user_id: string, username: string, email: string): Promise<void> => {
     const emailVerificationToken: EmailVerificationToken = await this.tokenService.createEmailVerificationToken(user_id, 300);
 
+    AppLogger.info('Sending verification email...', {
+      operation: 'send-email', context: {
+        userId: user_id,
+        email,
+      }
+    });
+
     const message: AuthEmailMessage = {
       to: email,
       template: EmailTemplate.VERIFY_EMAIL,
@@ -25,7 +33,6 @@ export class EmailService {
     const log = {
       message: 'Sent verification email successfully',
       context: {
-        action: 'SendEmailVerification',
         userId: user_id,
         email,
         template: EmailTemplate.VERIFY_EMAIL,
