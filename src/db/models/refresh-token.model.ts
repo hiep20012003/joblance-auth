@@ -1,15 +1,15 @@
-import { Model, DataTypes, Sequelize } from 'sequelize';
+import { Model, DataTypes, Sequelize, CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize';
 
 import { User } from './user.model';
 
-export class RefreshToken extends Model {
-  declare id: number;
-  declare user_id: number;
+export class RefreshToken extends Model<InferAttributes<RefreshToken>, InferCreationAttributes<RefreshToken>> {
+  declare id: CreationOptional<string>;
+  declare user_id: string;
   declare token: string;
   declare user_agent?: string;
   declare ip_address?: string;
   declare expires_at: Date;
-  declare revoked: boolean;
+  declare revoked?: boolean;
 
   declare readonly user?: User;
 
@@ -17,12 +17,12 @@ export class RefreshToken extends Model {
     RefreshToken.init(
       {
         id: {
-          type: DataTypes.INTEGER,
+          type: DataTypes.UUID,
+          defaultValue: DataTypes.UUIDV4,
           primaryKey: true,
-          autoIncrement: true,
         },
         user_id: {
-          type: DataTypes.INTEGER,
+          type: DataTypes.UUID,
           allowNull: false,
         },
         token: {

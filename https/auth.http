@@ -6,7 +6,14 @@ POST {{baseUrl}}/signup
 Content-Type: application/json
 
 {
-  "username": "adftuserasdd",
+  "username": "dot123",
   "email": "nguyendunghiep20012003@gmail.com",
   "password": "password123"
+}
+
+POST {{baseUrl}}/resend-verification
+Content-Type: application/json
+
+{
+  "email": "nguyendunghiep20012003@gmail.com",
 }

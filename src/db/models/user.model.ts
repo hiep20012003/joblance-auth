@@ -8,6 +8,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   declare email: string;
   declare password: string;
   declare is_verified: CreationOptional<boolean>;
+  declare status: CreationOptional<string>;
 
   static initialize(sequelize: Sequelize) {
     User.init(
@@ -35,6 +36,11 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
           type: DataTypes.BOOLEAN,
           defaultValue: false,
         },
+        status: {
+          type: DataTypes.ENUM('ACTIVE', 'INACTIVE', 'BANNED'),
+          allowNull: false,
+          defaultValue: 'ACTIVE',
+        }
       },
       {
         sequelize,

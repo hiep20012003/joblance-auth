@@ -3,8 +3,8 @@ import { Model, DataTypes, Sequelize } from 'sequelize';
 import { User } from './user.model';
 
 export class EmailVerificationToken extends Model {
-  declare id: number;
-  declare user_id: number;
+  declare id: string;
+  declare user_id: string;
   declare token: string;
   declare expires_at: Date;
   declare used: boolean;

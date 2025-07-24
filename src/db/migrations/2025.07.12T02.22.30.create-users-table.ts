@@ -29,6 +29,11 @@ export const up: MigrationFn<Sequelize> = async ({ context }) => {
       allowNull: false,
       defaultValue: false,
     },
+    status: {
+      type: DataTypes.ENUM('ACTIVE', 'INACTIVE', 'BANNED'),
+      allowNull: false,
+      defaultValue: 'ACTIVE',
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

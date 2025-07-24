@@ -1,4 +1,5 @@
-import z from 'zod';
+// import {z} from 'zod';
+import { z } from 'zod';
 
 // Schema for user registration
 export const signUpSchema = z.object({
@@ -10,21 +11,11 @@ export const signUpSchema = z.object({
 
   password: z.string()
     .min(6, { message: 'Password must be at least 6 characters long' }),
-
-  full_name: z.string()
-    .max(100, { message: 'Full name must not exceed 100 characters' })
-    .optional(),
-
-  phone: z.string()
-    .regex(/^\+?[0-9]{9,15}$/, 'Invalid phone number format')
-    .optional(),
-
-  gender: z.enum(['male', 'female', 'other'])
-    .describe('Gender is required')
-    .optional(),
-
-  dob: z.coerce.date().optional(), // Accepts strings or Date
+  confirmPassword: z.string()
+    .min(6, { message: 'Password must be at least 6 characters long' }),
 });
+
+export type SignUpDTO = z.infer<typeof signUpSchema>;
 
 // Schema for user login
 export const signInSchema = z.object({
@@ -33,6 +24,18 @@ export const signInSchema = z.object({
   password: z.string()
     .min(1, 'Password is required'),
 });
+export type SignInDTO = z.infer<typeof signInSchema>;
+
+export const resendEmailVerificationSchema = z.object({
+  email: z.email()
+});
+
+export type ResendEmailVerificationDTO = z.infer<typeof resendEmailVerificationSchema>;
+
+export const verifyEmailSchema = z.object({
+  token: z.string().min(1, 'Token is required'),
+});
+export type VerifyEmailDTO = z.infer<typeof verifyEmailSchema>;
 
 // Schema for requesting password reset
 export const requestPasswordResetSchema = z.object({
@@ -46,12 +49,6 @@ export const resetPasswordSchema = z.object({
 
   new_password: z.string()
     .min(6, 'New password must be at least 6 characters long'),
-});
-
-// Schema for verifying email with a token
-export const verifyEmailSchema = z.object({
-  token: z.string()
-    .min(1, 'Verification token is required'),
 });
 
 // Common reusable validators

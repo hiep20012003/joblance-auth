@@ -4,7 +4,6 @@ import { config } from '@auth/config';
 import { ServerError } from '@hiep20012003/joblance-shared';
 
 import { User } from './models/user.model';
-import { UserProfile } from './models/user-profile.model';
 import { Role } from './models/role.model';
 import { UserRole } from './models/user-role.model';
 import { RefreshToken } from './models/refresh-token.model';
@@ -33,7 +32,6 @@ export class Database {
     });
 
     User.initialize(this.sequelize);
-    UserProfile.initialize(this.sequelize);
     Role.initialize(this.sequelize);
     UserRole.initialize(this.sequelize);
     RefreshToken.initialize(this.sequelize);
@@ -44,7 +42,6 @@ export class Database {
   }
 
   private setupAssociations() {
-    User.hasOne(UserProfile, { foreignKey: 'user_id', as: 'profile' });
     User.hasMany(RefreshToken, { foreignKey: 'user_id', as: 'refreshTokens' });
     User.hasMany(EmailVerificationToken, { foreignKey: 'user_id', as: 'emailVerificationTokens' });
     User.hasMany(PasswordResetToken, { foreignKey: 'user_id', as: 'passwordResetTokens' });
@@ -66,7 +63,6 @@ export class Database {
     RefreshToken.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
     PasswordResetToken.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
     EmailVerificationToken.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
-    UserProfile.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
     UserRole.belongsTo(User, { foreignKey: 'user_id' });
     UserRole.belongsTo(Role, { foreignKey: 'role_id' });
   }
@@ -116,7 +112,6 @@ export const database = new Database();
 export const db = {
   // sequelize: database.sequelizeInstance,
   User,
-  UserProfile,
   Role,
   UserRole,
   RefreshToken,
