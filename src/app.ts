@@ -1,10 +1,11 @@
-import { database } from '@auth/db/database';
-import express, { Express } from 'express';
-import { AuthServer } from '@auth/server';
-import { AppLogger } from '@auth/utils/logger';
+import '@elastic/opentelemetry-node';
+
+import express, {Express} from 'express';
+import {AuthServer} from '@auth/server';
+import {AppLogger} from '@auth/utils/logger';
 
 class Application {
-  private app: Express;
+  private readonly app: Express;
   private server: AuthServer;
 
   constructor() {
@@ -13,14 +14,13 @@ class Application {
   }
 
   public async initialize(): Promise<void> {
-    const operation = 'auth-service-init';
+    const operation = 'app:init';
 
     try {
-      await database.connect();
       await this.server.start();
-      AppLogger.info('Auth Service initialized', { operation });
+      AppLogger.info('Auth Service initialized', {operation});
     } catch (error) {
-      AppLogger.error('', { operation, error });
+      AppLogger.error('', {operation, error});
       process.exit(1);
     }
   }
@@ -33,17 +33,17 @@ async function bootstrap(): Promise<void> {
 
 // ---- Global error handlers ---- //
 process.on('uncaughtException', (error) => {
-  AppLogger.error('', { operation: 'auth-service-uncaught-exception', error });
+  AppLogger.error('', {operation: 'app:uncaught-exception', error});
   process.exit(1);
 });
 
 process.on('unhandledRejection', (reason) => {
-  AppLogger.error('', { operation: 'auth-service-unhandled-rejection', error: reason });
+  AppLogger.error('', {operation: 'app:unhandled-rejection', error: reason});
   process.exit(1);
 });
 
 // ---- App Entry Point ---- //
 bootstrap().catch((error) => {
-  AppLogger.error('', { operation: 'auth-service-bootstrap-failed', error });
+  AppLogger.error('', {operation: 'app:bootstrap-failed', error});
   process.exit(1);
 });
