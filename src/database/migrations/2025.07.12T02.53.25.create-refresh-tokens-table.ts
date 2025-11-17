@@ -1,0 +1,62 @@
+import { DataTypes, Sequelize } from 'sequelize';
+
+import type { MigrationFn } from 'umzug';
+
+export const up: MigrationFn<Sequelize> = async ({ context }) => {
+  await context.getQueryInterface().createTable('refresh_tokens', {
+    id: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+      allowNull: false,
+    },
+    userId: {
+      type: DataTypes.UUID, // Changed from INTEGER to UUID
+      allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    },
+    token: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    browserName: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    deviceType: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    ipAddress: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    expireAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    revoked: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+  });
+};
+
+export const down: MigrationFn<Sequelize> = async ({ context }) => {
+  await context.getQueryInterface().dropTable('refresh_tokens');
+};

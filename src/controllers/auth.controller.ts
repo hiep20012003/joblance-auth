@@ -1,76 +1,132 @@
-import { ResendEmailVerificationDTO, SignUpDTO, VerifyEmailDTO } from '@auth/dtos/auth/auth-request.schema';
-import { AuthResponseDTO, UserResponseDTO as UserDTO } from '@auth/dtos/auth/auth-response.dto';
-import { AuthService } from '@auth/services/auth.service';
-import { SuccessResponse } from '@hiep20012003/joblance-shared';
-import { Request, Response } from 'express';
-import { ReasonPhrases, StatusCodes } from 'http-status-codes';
+import {AuthResponseDTO} from '@auth/schemas/auth/auth-response.dto';
+import {ForgotPasswordDTO} from '@auth/schemas/auth/forgot-password.schema';
+import {ResendEmailVerificationDTO} from '@auth/schemas/auth/resend-email-verification.schema';
+import {ResetPasswordDTO} from '@auth/schemas/auth/reset-password.schema';
+import {SignInDTO} from '@auth/schemas/auth/sign-in.schema';
+import {SignUpDTO} from '@auth/schemas/auth/sign-up.schema';
+import {ChangePasswordDTO} from '@auth/schemas/auth/change-password.schema';
+import {IAuthDocument, SuccessResponse} from '@hiep20012003/joblance-shared';
+import {Request, Response} from 'express';
+import {ReasonPhrases, StatusCodes} from 'http-status-codes';
+import {authService} from '@auth/services/auth.service';
 
 export class AuthController {
-  private readonly authService: AuthService;
-  constructor(authService: AuthService) {
-    this.authService = authService;
-  }
+  public getCurrentAuthUser = async (req: Request, res: Response): Promise<void> => {
+    const user = await authService.getAuthUserById(req.currentUser?.sub as string);
+    new SuccessResponse({
+      statusCode: StatusCodes.OK,
+      reasonPhrase: ReasonPhrases.OK,
+      data: user
+    }).send(res);
+  };
+
+  public getAuthUserById = async (req: Request, res: Response): Promise<void> => {
+    const user = await authService.getAuthUserById(req.params.userId);
+    new SuccessResponse({
+      statusCode: StatusCodes.OK,
+      reasonPhrase: ReasonPhrases.OK,
+      data: user
+    }).send(res);
+  };
 
   public signUp = async (req: Request, res: Response): Promise<void> => {
     const payload: SignUpDTO = req.body as SignUpDTO;
-    const user: UserDTO = await this.authService.signUp(payload);
+    const user: IAuthDocument = await authService.signUp(payload);
     new SuccessResponse({
-      message: 'User created successfully',
       statusCode: StatusCodes.CREATED,
       reasonPhrase: ReasonPhrases.CREATED,
-      metadata: user
+      data: user
     }).send(res);
   };
 
   public signIn = async (req: Request, res: Response): Promise<void> => {
-    const payload: SignUpDTO = req.body as SignUpDTO;
-    const auth: AuthResponseDTO = await this.authService.signIn(payload);
+    const payload: SignInDTO = req.body as SignInDTO;
+    const auth: AuthResponseDTO = await authService.signIn(`${req.ip}`, payload);
     new SuccessResponse({
-      message: 'Sign in successfully',
       statusCode: StatusCodes.OK,
       reasonPhrase: ReasonPhrases.OK,
-      metadata: auth
+      data: auth
     }).send(res);
   };
 
   public refreshToken = async (req: Request, res: Response): Promise<void> => {
-    const { refreshToken } = req.body as { refreshToken: string };
-    const result = await this.authService.refreshAccessToken(refreshToken);
+    const {token} = req.body as { token: string };
+    const result = await authService.refreshAccessToken(token);
     new SuccessResponse({
-      message: 'Token refreshed successfully',
       statusCode: StatusCodes.OK,
       reasonPhrase: ReasonPhrases.OK,
-      metadata: result
+      data: result
     }).send(res);
   };
 
   public logout = async (req: Request, res: Response): Promise<void> => {
-    const { refreshToken } = req.body as { refreshToken: string };
-    await this.authService.logout(refreshToken);
+    await authService.logout(req.currentUser!.sub);
     new SuccessResponse({
-      message: 'Logged out successfully',
+      message: 'Logout successfully',
+      statusCode: StatusCodes.OK,
+      reasonPhrase: ReasonPhrases.OK
+    }).send(res);
+  };
+
+  public forgotPassword = async (req: Request, res: Response): Promise<void> => {
+    const payload: ForgotPasswordDTO = req.body as ForgotPasswordDTO;
+    await authService.forgotPassword(payload);
+    new SuccessResponse({
+      message: 'Send email reset password successfully',
+      statusCode: StatusCodes.OK,
+      reasonPhrase: ReasonPhrases.OK
+    }).send(res);
+  };
+
+  public resetPassword = async (req: Request, res: Response): Promise<void> => {
+    const payload = req.body as ResetPasswordDTO;
+    await authService.resetPassword(payload);
+    new SuccessResponse({
+      message: 'Reset password successfully',
+      statusCode: StatusCodes.OK,
+      reasonPhrase: ReasonPhrases.OK
+    }).send(res);
+  };
+
+  public validateResetPasswordToken = async (req: Request, res: Response): Promise<void> => {
+    const {token} = req.body as { token: string };
+    await authService.validateResetPasswordToken(token);
+    new SuccessResponse({
+      message: 'Reset password token valid',
       statusCode: StatusCodes.OK,
       reasonPhrase: ReasonPhrases.OK,
+    }).send(res);
+  };
+
+  public changePassword = async (req: Request, res: Response): Promise<void> => {
+    const payload: ChangePasswordDTO = req.body as ChangePasswordDTO;
+    await authService.changePassword(payload);
+    new SuccessResponse({
+      message: 'Email verified successfully',
+      statusCode: StatusCodes.OK,
+      reasonPhrase: ReasonPhrases.OK
     }).send(res);
   };
 
   public resendEmailVerification = async (req: Request, res: Response): Promise<void> => {
     const payload: ResendEmailVerificationDTO = req.body as ResendEmailVerificationDTO;
-    await this.authService.resendEmailVerification(payload);
+    await authService.resendEmailVerification(payload);
     new SuccessResponse({
-      message: 'Verification email sent successfully',
+      message: 'Resend verification email successfully',
       statusCode: StatusCodes.OK,
-      reasonPhrase: ReasonPhrases.OK,
+      reasonPhrase: ReasonPhrases.OK
     }).send(res);
   };
 
   public verifyEmail = async (req: Request, res: Response): Promise<void> => {
-    const payload: VerifyEmailDTO = req.body as VerifyEmailDTO;
-    await this.authService.verifyEmail(payload);
+    const {token} = req.body as { token: string };
+    await authService.verifyEmail(token);
     new SuccessResponse({
       message: 'Email verified successfully',
       statusCode: StatusCodes.OK,
-      reasonPhrase: ReasonPhrases.OK,
+      reasonPhrase: ReasonPhrases.OK
     }).send(res);
   };
 }
+
+export const authController: AuthController = new AuthController();

@@ -1,4 +1,4 @@
-import { RefreshToken } from '@auth/db/models/refresh-token.model';
+import { RefreshToken } from '@auth/database/models/refresh-token.model';
 
 export class RefreshTokenRepository {
   public async save(refreshToken: RefreshToken): Promise<RefreshToken> {
@@ -9,11 +9,13 @@ export class RefreshTokenRepository {
     return RefreshToken.findOne({ where: { token } });
   }
 
-  public async revokeToken(token: string): Promise<void> {
-    await RefreshToken.update({ revoked: true }, { where: { token } });
+  public async revokeToken(userId: string): Promise<void> {
+    await RefreshToken.update({ revoked: true }, { where: { userId } });
   }
 
   public async findByUserId(userId: string): Promise<RefreshToken[]> {
-    return RefreshToken.findAll({ where: { user_id: userId } });
+    return RefreshToken.findAll({ where: { userId: userId } });
   }
 }
+
+export const refreshTokenRepository: RefreshTokenRepository = new RefreshTokenRepository();

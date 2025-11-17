@@ -1,22 +1,41 @@
-export function pickFields<T extends object, K extends keyof T>(
-  obj: T,
-  keys: K[]
-): Pick<T, K> {
-  return keys.reduce((result, key) => {
-    if (key in obj) {
-      result[key] = obj[key];
-    }
-    return result;
-  }, {} as Pick<T, K>);
-}
+import {Role} from '@auth/database/models/role.model';
+import {Resource} from '@auth/database/models/resource.model';
+import {Permission} from '@auth/database/models/permission.model';
 
-export function omitFields<T extends object, K extends keyof T>(
-  obj: T,
-  keys: K[]
-): Omit<T, K> {
-  const result = { ...obj };
-  keys.forEach((key) => {
-    delete result[key];
+export type GrantsObject = {
+  [roleName: string]: {
+    [resourceName: string]: {
+      [action: string]: string[];
+    };
+  };
+};
+
+export async function buildGrantsObject(): Promise<GrantsObject> {
+  const permissions: Permission[] = await Permission.findAll({
+    include: [
+      {model: Role, as: 'role'},
+      {model: Resource, as: 'resource'}
+    ]
   });
-  return result;
+
+  const grants: GrantsObject = {};
+
+  for (const perm of permissions) {
+    const role = perm.role!.name;
+    const resource = perm.resource!.name;
+    const action = perm.action;
+    const attributes = perm.attributes.split(',').map((a: string) => a.trim());
+
+    if (!grants[role]) {
+      grants[role] = {} as GrantsObject[string];
+    }
+
+    if (!grants[role][resource]) {
+      grants[role][resource] = {} as GrantsObject[string][string];
+    }
+
+    grants[role][resource][action] = attributes;
+  }
+
+  return grants;
 }
