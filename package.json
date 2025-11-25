@@ -23,9 +23,9 @@
     "seed:undo": "dotenv -- node scripts/seed.js down"
   },
   "dependencies": {
-    "@hiep20012003/joblance-shared": "latest",
     "@elastic/opentelemetry-node": "^1.6.0",
     "@faker-js/faker": "^10.1.0",
+    "@hiep20012003/joblance-shared": "^0.0.5",
     "amqplib": "^0.10.9",
     "axios": "^1.11.0",
     "bcrypt": "^6.0.0",
